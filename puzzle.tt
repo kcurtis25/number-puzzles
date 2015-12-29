@@ -1,8 +1,8 @@
-\documentclass[22pt]{extarticle}
+\documentclass[20pt]{extarticle}
 \usepackage[a4paper, portrait, margin=0.9in]{geometry}
 \usepackage{fancyhdr}
 
-\renewcommand{\baselinestretch}{2.3}
+\renewcommand{\baselinestretch}{1.3}
 
 \begin{document}
 \newgeometry{left=2cm,right=2cm,top=3cm,bottom=3cm}
@@ -30,17 +30,15 @@
 \end{tabular}
 \\
 \\
+\\
 [% meta.question %]
 \\
+[% FOREACH line IN answer_format %]
+  \begin{tabular}{[% FOREACH letter IN line %][% IF letter == ' ' %] p{2em} [% ELSE %]c[% END %][% END %]}
+  [% FOREACH letter IN line %][% IF letter == ' ' %]&[% ELSE %]\underline{\hspace{1em}}&[% END %][% END %]
+  [% FOREACH letter IN line %][% letter %]&[% END %]
+\end{tabular}
+[% END %]
 \\
-\begin{tabular}{cccc p{1cm} cccc p{1cm} cccc}
-\underline{\hspace{1em}}&\underline{\hspace{1em}}&\underline{\hspace{1em}}& \underline{\hspace{1em}}&&\underline{\hspace{1em}}&\underline{\hspace{1em}}& \underline{\hspace{1em}}&\underline{\hspace{1em}}&&\underline{\hspace{1em}}& \underline{\hspace{1em}}&\underline{\hspace{1em}}&\underline{\hspace{1em}}\\
-11&7&5&8&&10&7&6&2&&9&12&4&5\\
-\end{tabular}
-
-\begin{tabular}{ccccccc}
-\underline{\hspace{1em}}&\underline{\hspace{1em}}&\underline{\hspace{1em}}& \underline{\hspace{1em}}&\underline{\hspace{1em}}&\underline{\hspace{1em}}\\
-1&10&2&2&3&8\\
-\end{tabular}
 
 \end{document}

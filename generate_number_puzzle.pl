@@ -14,15 +14,16 @@ my ($datafile);
 die $usage unless GetOptions(
 	'datafile=s'  => \$datafile,
 );
-$datafile ||= 'puzzle-numbers01.dat';
-my $backup_datafile = 'addition_to_10-bkp.dat';
+$datafile ||= 'data/puzzle-numbers01.dat';
+my $backup_datafile = 'data/addition_to_10-bkp.dat';
 
 my $template_config = {
 	INCLUDE_PATH    => ["."],
 };
 
 my $meta = get_meta_data($datafile);
-my $formulas_datafile = $meta->{formulas};
+print Dumper($meta);
+my $formulas_datafile = 'data/' . $meta->{formulas};
 my $answer = $meta->{answer};
 
 my $required_letters = get_required_letters($answer);
@@ -35,12 +36,11 @@ my $template_vars = {
 	letters    => $required_letters,
 	answer_format    => $answer_format,
 };
-#print Dumper($template_vars);
-#exit;
+print Dumper($template_vars);
+exit;
 
 my $tt = Template->new($template_config);
-$tt->process('philGo.tt', $template_vars);
-#$tt->process('puzzle.tt', $template_vars);
+$tt->process('puzzle.tt', $template_vars);
 exit;
 
 sub get_meta_data
