@@ -70,6 +70,7 @@ subtest 'Next result' => sub {
 
 subtest 'generate' => sub {
 	my $to_2_generator = SCP::ProblemGenerator->new({ max_result => 2 });
+	is ($to_2_generator->max_result, 2, 'max_result is set to 2');
 	$to_2_generator->generate();
 	my $possible_problems = $to_2_generator->possible_problems;
 	my $expected_result = [ 
@@ -80,6 +81,7 @@ subtest 'generate' => sub {
 	is_deeply($possible_problems, $expected_result, 'Generator to 2 returns correctly');
 
 	my $to_5_generator = SCP::ProblemGenerator->new({ max_result => 5 });
+	is ($to_5_generator->max_result, 5, 'max_result is set to 5');
 	$to_5_generator->generate();
 	$possible_problems = $to_5_generator->possible_problems;
 	$expected_result = [ 
@@ -107,6 +109,26 @@ subtest 'print' => sub {
 	$to_2_generator->generate();
 	is ($to_2_generator->count_possible_problems, 3, 'count_possible_problems for a max result of 2 is 3');
 	lives_ok { $to_2_generator->print(); } "Generator data printed, please visually confirm result";
+};
+
+subtest 'negative numbers' => sub {
+	my $negative_numbers = SCP::ProblemGenerator->new({ min_result => -2, max_result => 2 });
+	$negative_numbers->generate();
+	is ($negative_numbers->count_possible_problems, 10, 'count_possible_problems for -2 to 2 is 10');
+	my $possible_problems = $negative_numbers->possible_problems;
+	my $expected_result = [
+       { 'problem' => '1 + -3', 'result' => -2 },
+       { 'problem' => '2 + -4', 'result' => -2 },
+       { 'problem' => '1 + -2', 'result' => -1 },
+       { 'problem' => '2 + -3', 'result' => -1 },
+       { 'problem' => '1 + -1', 'result' => 0 },
+       { 'problem' => '2 + -2', 'result' => 0 },
+       { 'problem' => '1 + 0', 'result' => 1 },
+       { 'problem' => '2 + -1', 'result' => 1 },
+       { 'problem' => '1 + 1', 'result' => 2 },
+       { 'problem' => '2 + 0', 'result' => 2 }
+	];
+	is_deeply($possible_problems, $expected_result, 'Generator to 5 returns correctly');
 };
 
 done_testing;

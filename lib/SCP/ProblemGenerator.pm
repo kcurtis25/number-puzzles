@@ -41,9 +41,9 @@ sub generate
         	while ($x < $max_result)
         	{
                 	$x++;
-                	my $y = $result - $x;
-                	next unless $x > -1 && $y > -1;
-			$self->add_possible_problem({ result => $result, problem => "$x + $y" });
+					my $problem = $self->get_problem($result, $x);
+					next unless $problem;
+					$self->add_possible_problem({ result => $result, problem => $problem });
         	}
         	$result = $self->next_result($result);
 	}
@@ -51,14 +51,26 @@ sub generate
 
 sub next_result
 {
-	my ($self, $current_value) = @_;
+	my ($self, $current_result) = @_;
 	
-	return ++$current_value;
+	return ++$current_result;
+}
+
+sub get_problem
+{
+	my ($self, $result, $x) = @_;
+	
+	my $y = $result - $x;
+	if ($self->min_result >= 0)
+	{
+		return undef unless $x > -1 && $y > -1;
+	}
+	return "$x + $y";
 }
 
 sub print
 {
-	my $self = shift;
+	my ($self) = @_;
 	
 	# If we have no problems, then generate
 	$self->generate if ($self->count_possible_problems == 0);
