@@ -14,17 +14,8 @@ has 'possible_problems' => (
 	isa     => 'ArrayRef[HashRef]',
 	default => sub { [] },
 	handles => {
-		all_possible_problems    => 'elements',
 		add_possible_problem     => 'push',
-		map_possible_problems    => 'map',
-		filter_possible_problems => 'grep',
-		find_possible_problem    => 'first',
-		get_possible_problem     => 'get',
-		join_possible_problems   => 'join',
 		count_possible_problems  => 'count',
-		has_possible_problems    => 'count',
-		has_no_possible_problems => 'is_empty',
-		sorted_possible_problems => 'sort',
 	},
 );
 
@@ -81,6 +72,5 @@ sub print
 		print "$problem->{result}   $problem->{problem}\n";
 	}
 }
-
 
 1;
