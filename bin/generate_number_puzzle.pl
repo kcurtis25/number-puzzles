@@ -45,5 +45,5 @@ my $template_vars = {
 print Dumper($template_vars);
 
 my $tt = Template->new($template_config);
-$tt->process('puzzle.tt', $template_vars);
+$tt->process('puzzle.tt', $template_vars) || die $tt->error();;
 exit;
