@@ -1,9 +1,11 @@
 var express   = require('express');
 var router    = express.Router();
+var puzzle    = require('../number-puzzles/index.js');
 
 /* GET show generate form */
 router.get('/', function(req, res, next) {
-	res.render('generate-form');
+	var types = puzzle.getPuzzleTypes();
+	res.render('generate-form', { types: types });
 });
 
 /* POST - After the user submits the form */

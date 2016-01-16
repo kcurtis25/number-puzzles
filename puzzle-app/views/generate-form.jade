@@ -12,8 +12,8 @@ block content
 				td Type
 				td 
 					select(id='type',name='type')
-						option Addition
-						option Subtraction
+						each type, index in types
+							option= type
 			tr
 				td Clue Phrase
 				td
