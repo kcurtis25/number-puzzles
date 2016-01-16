@@ -1,0 +1,28 @@
+extends layout
+
+block content
+	h1 Generate a Puzzle
+	form(action='generate',method='post')
+		table
+			tr
+				td Title
+				td 
+					input(type='text',id='title',name='title')
+			tr
+				td Type
+				td 
+					select(id='type',name='type')
+						option Addition
+						option Subtraction
+			tr
+				td Clue Phrase
+				td
+					input(type='text',id='clue_phrase',name='clue_phrase')
+			tr
+				td Clue Answer
+				td
+					input(type='text',id='clue_answer',name='clue_answer')
+			tr(colspan=2)
+				td 
+					input(type='submit',value='Generate Puzzle')
+		table
