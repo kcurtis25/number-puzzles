@@ -1,21 +1,17 @@
 {
   "name": "puzzle-app",
-  "version": "0.0.1",
-  "description": "Web Server for Number Puzzles",
-  "main": "index.js",
+  "version": "0.0.0",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:kcurtis25/number-puzzles.git"
-  },
-  "author": "Katherine Curtis and Phil Howlin",
-  "license": "BSD",
-  "bugs": {
-    "url": "https://github.com/kcurtis25/number-puzzles/issues"
+    "start": "node ./bin/www"
   },
   "dependencies": {
-    "express": "~4.13.3"
+    "body-parser": "~1.13.2",
+    "cookie-parser": "~1.3.5",
+    "debug": "~2.2.0",
+    "express": "~4.13.1",
+    "jade": "~1.11.0",
+    "morgan": "~1.6.1",
+    "serve-favicon": "~2.3.0"
   }
 }
