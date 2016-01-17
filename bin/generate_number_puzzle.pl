@@ -22,7 +22,7 @@ $datafile ||= 'puzzle-numbers01.dat';
 my $backup_datafile = 'data/addition_to_10-bkp.dat';
 
 my $template_config = {
-	INCLUDE_PATH    => ["."],
+	INCLUDE_PATH    => ["../."],
 };
 
 my $data_dir = "$Bin/../data/";
