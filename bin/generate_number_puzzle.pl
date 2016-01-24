@@ -21,14 +21,14 @@ die $usage unless GetOptions(
 $datafile ||= 'puzzle-numbers01.dat';
 my $backup_datafile = 'data/addition_to_10-bkp.dat';
 
-my $template_config = {
-	INCLUDE_PATH    => ["../."],
-};
-
-my $data_dir = "$Bin/../data/";
-my $puzzle_config = $data_dir . $datafile;
+my $base_dir = "$Bin/../";
+my $puzzle_config = $base_dir . "data/" . $datafile;
 my $puzzle = SCP::PuzzleGenerator->new({ config_datafile => $puzzle_config });
 $puzzle->generate();
+
+my $template_config = {
+	INCLUDE_PATH    => [ $base_dir ],
+};
 
 my $meta = $puzzle->puzzle_meta;
 my $formulas = $puzzle->problems;
