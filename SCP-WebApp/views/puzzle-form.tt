@@ -1,0 +1,60 @@
+
+<div id="page">
+      <div id="sidebar">
+        <ul id="sidebar-items">
+          <li>
+            <h3>Puzzle Generator</h3>
+            <ul class="links">
+
+              <li><a href="/abcd">Generate New Puzzle</a></li>
+              <li><a href="/abcd">Download existing puzzles</a></li>
+              <li><a href="/abcd">Something else</a></li>
+            </ul>
+          </li>
+
+          <li>
+            <h3>Browse the documentation</h3>
+
+            <ul class="links">
+              <li><a href="/abcd">Some link</a></li>
+            </ul>
+          </li>
+
+          <li>
+            <h3>Your application's environment</h3>
+
+            <ul>
+                <li>Template engine: <code><% settings.template %></code></li>
+                <li>Logger: <code><% settings.logger %></code></li>
+                <li>Environment: <code><% settings.environment %></code></li>
+            </ul>
+
+          </li>
+        </ul>
+
+      </div>
+
+      <div id="content">
+        <div id="header">
+          <h1>Generate New Puzzle</h1>
+          <p>Use the form below to specify the parameters for your own Self Correcting Puzzle</p>
+        </div>
+
+        <div id="puzzle-form">
+          <h1>Puzzle Form</h1>
+          <form action="/puzzle" method="post">
+            <table>
+              <tr><td>Title:</td><td><input id="title" name="title" type="text" /></tr>
+              <tr><td>Category:</td><td><input id="category" name="category" type="text" /></tr>
+              <tr><td>Formula File:</td><td><input id="formulas" name="formulas" type="text" /></tr>
+              <tr><td>Backup Formula File:</td><td><input id="backup_formula_file" name="backup_formula_file" type="text" /></tr>
+              <tr><td>Author:</td><td><input id="author" name="author" type="text" /></tr>
+              <tr><td>Question:</td><td><input id="question" name="question" type="text" /></tr>
+              <tr><td>Answer:</td><td><input id="answer" name="answer" type="text" /></tr>
+              <tr colspan="2"><td><input type="submit" /></td></tr>
+            </table>
+          <form>
+          </ol>
+        </div>
+      </div>
+    </div>
