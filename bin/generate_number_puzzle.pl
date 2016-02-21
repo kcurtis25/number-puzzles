@@ -1,5 +1,17 @@
 #!/usr/bin/perl
 
+=head1 NAME
+
+bin/generate_number_puzzle.pl
+
+=head1 DESCRIPTION
+
+Generate the number puzzle
+
+Usage: generate_number_puzzle.pl --datafile=puzzle-numbers01.dat --format=pdf
+
+=cut
+
 use strict;
 use warnings;
 
@@ -62,6 +74,10 @@ $dispatcher->{$format}->($temporary_file);
 
 =head1 METHODS
 
+=head2 _temp_file_name ($suffix)
+
+Provide a temporary filename (eg /tmp/puzzle-numbers_2RjBtex)
+
 =cut
 
 sub _temp_file_name 
@@ -72,6 +88,13 @@ sub _temp_file_name
 	my $file = File::Temp->new($template, SUFFIX => $suffix, DIR => $temp_dir, UNLINK => 1)->filename;
 	return $file;
 }
+
+=head2 get_dispatcher ()
+
+Return a hash of function references keyed on the format. Each function takes a 
+$filename to direct the output to
+
+=cut
 
 sub get_dispatcher
 {
