@@ -22,7 +22,7 @@
 \setlength{\tabcolsep}{3pt}
 \begin{tabular}{ccccccc|cccccc}
 [% FOREACH question IN formulas %]
-[% question.letter %]\colon[% question.formatted_question %]=&\underline{\hspace{1.5cm}}
+[% question.letter %]\colon[% question.formatted_question %]
   [% IF second == 1 %][% SET second = 0 %]\\
   [% ELSE %][% SET second = 1 %]& \hspace{1.5cm} & \hspace{1em}
   [% END %]
