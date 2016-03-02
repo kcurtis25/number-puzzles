@@ -249,6 +249,16 @@ sub push_problem
 	# Put a & at the begining and end, and swap the spaces for '&'
 	(my $formatted_question = '&' . $args->{question} . '&') =~ s/ /\&/g;
 	
+	if ($formatted_question =~ m/_/) {
+		# A '_' in the question should be substituted for an underscore to
+		# write the answer on. Then append a &
+		$formatted_question =~ s/_/\\underline{\\hspace{1.5cm}}/;
+		$formatted_question .= '&';
+	} else {
+		# Else, append a ' = ____' to supply space for the answer
+		$formatted_question .= '=&\underline{\hspace{1.5cm}}';
+	}
+	
 	$self->push_formatted_problem({
 		answer => $args->{answer},
 		question => $args->{question},
