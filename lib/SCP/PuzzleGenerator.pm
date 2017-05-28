@@ -36,6 +36,7 @@ has data_dir     => (is => 'ro', isa => 'Str', lazy => 1, builder => '_build_dat
 sub _build_data_dir
 {
 	my $self = shift;
+	return "/opt/app/data/";
 	my $datafile = $self->config_datafile || "../data/temp.dat";
 	
 	my $file = path($datafile);
@@ -245,18 +246,25 @@ sub get_problems_from_file
 sub push_problem
 {
 	my ($self, $args) = @_;
+	my $question = $args->{question};
+	my $part_count = scalar split(/ /, $question);
 	
 	# Put a & at the begining and end, and swap the spaces for '&'
-	(my $formatted_question = '&' . $args->{question} . '&') =~ s/ /\&/g;
+	(my $formatted_question = '&' . $question) =~ s/ /\&/g;
 	
 	if ($formatted_question =~ m/_/) {
 		# A '_' in the question should be substituted for an underscore to
 		# write the answer on. Then append a &
-		$formatted_question =~ s/_/\\underline{\\hspace{1.5cm}}/;
-		$formatted_question .= '&';
+		$formatted_question =~ s/_/\\underline{\\hspace{1cm}}/;
+		
+		# Add additional '&' to make 5 columns
+		while ($part_count < 5) {
+			$formatted_question .= '&';
+			$part_count++;
+		}
 	} else {
 		# Else, append a ' = ____' to supply space for the answer
-		$formatted_question .= '=&\underline{\hspace{1.5cm}}';
+		$formatted_question .= '&=&\underline{\hspace{1.5cm}}';
 	}
 	
 	$self->push_formatted_problem({

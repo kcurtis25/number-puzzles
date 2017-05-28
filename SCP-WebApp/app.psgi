@@ -20,6 +20,7 @@ maintain the PSGI application
 
 use FindBin;
 use lib "$FindBin::Bin/../lib";
+use lib "/opt/app/lib";
 
 use SCP::WebApp;
 SCP::WebApp->to_app;
