@@ -53,7 +53,7 @@ my $template_config = {
 
 my $temporary_file = $puzzle->_temp_file_name('tex');
 my $tt = Template->new($template_config);
-$tt->process('puzzle.tt', $template_vars, $temporary_file) || die $tt->error();;
+$tt->process('/opt/app/puzzle.tt', $template_vars, $temporary_file) || die $tt->error();;
 
 my $dispatcher = $puzzle->get_dispatcher($format);
 $dispatcher->($temporary_file);

@@ -67,11 +67,12 @@ post '/puzzle' => sub {
 	my $template_vars = $puzzle->generate();
 
 	my $template_config = {
-		INCLUDE_PATH    => [ $puzzle->data_dir . "../" ],
+		INCLUDE_PATH => [ $puzzle->data_dir . "../" ],
+		ABSOLUTE     => 1,
 	};
 	my $temporary_file = $puzzle->_temp_file_name('.tex');
 	my $tt = Template->new($template_config);
-	$tt->process('puzzle.tt', $template_vars, $temporary_file) || die $tt->error();;
+	$tt->process('/opt/app/puzzle.tt', $template_vars, $temporary_file) || die $tt->error();;
 	my $dispatcher = $puzzle->get_dispatcher('pdf');
 	$dispatcher->($temporary_file);
 	(my $output_file = $temporary_file) =~ s/\.tex$/.pdf/;

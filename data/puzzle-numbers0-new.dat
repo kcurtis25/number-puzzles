@@ -1,0 +1,18 @@
+{
+	Title: "Liam",
+	Category: "Addition to 10",
+	Formulas: "addition_to_10.dat",
+	Question: "How many wheels do cars have?",
+	Answer: "Cars have four wheels",
+	Author: "K.Curtis",
+	Pages: [
+		{
+			Question: "How many wheels do cars have?",
+			Answer: "Cars have four wheels",
+		},
+		{
+			Question: "How many wheels do cars have?",
+			Answer: "Cars have four wheels",
+		}
+	]
+}
