@@ -19,6 +19,12 @@ has 'possible_problems' => (
 	},
 );
 
+=head2 generate
+
+Add problems to the 'possible_problems' array
+
+=cut
+
 sub generate
 {
 	my $self = shift;
@@ -40,16 +46,28 @@ sub generate
 	}
 }
 
+=head2 $self->next_result ($current_result)
+
+Given a result (answer to an equation), return the next possible result
+
+=cut
+
 sub next_result
 {
-	my ($self, $current_result) = @_;
+	my $self = shift;
+	my ($current_result) = @_;
 	
 	return ++$current_result;
 }
 
+=head2 $self->get_problem ($result, $x)
+
+=cut
+
 sub get_problem
 {
-	my ($self, $result, $x) = @_;
+	my $self = shift;
+	my ($result, $x) = @_;
 	
 	my $y = $result - $x;
 	if ($self->min_result >= 0)

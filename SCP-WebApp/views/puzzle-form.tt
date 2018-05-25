@@ -47,7 +47,6 @@
               <tr><td>Title:</td><td><input id="title" name="title" type="text" /></tr>
               <tr><td>Category:</td><td><input id="category" name="category" type="text" /></tr>
               <tr><td>Formula File:</td><td><input id="formulas" name="formulas" type="text" /></tr>
-              <tr><td>Backup Formula File:</td><td><input id="backup_formula_file" name="backup_formula_file" type="text" /></tr>
               <tr><td>Author:</td><td><input id="author" name="author" type="text" /></tr>
               <tr><td>Question:</td><td><input id="question" name="question" type="text" /></tr>
               <tr><td>Answer:</td><td><input id="answer" name="answer" type="text" /></tr>
