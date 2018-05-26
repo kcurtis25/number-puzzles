@@ -7,50 +7,46 @@ use Moose;
 use Path::Tiny;
 use List::Util 'shuffle';
 
-has config_datafile           => (is => 'ro', isa => 'Maybe[Str]');
-has backup_problem_datafile   => (is => 'ro', isa => 'Str', default => 'addition_to_10-bkp.dat');
-has main_problem_datafile     => (is => 'ro', isa => 'Str', lazy => 1, builder => '_build_main_problem_datafile');
+has config_datafile         => (is => 'ro', isa => 'Maybe[Str]');
+has backup_problem_datafile => (is => 'ro', isa => 'Str', default => 'addition_to_10-bkp.dat');
+has main_problem_datafile   => (is => 'ro', isa => 'Str', lazy => 1, builder => '_build_main_problem_datafile');
 
 has puzzle_meta => (is => 'ro', isa => 'HashRef', lazy => 1, builder => '_build_puzzle_meta');
 
 sub _build_puzzle_meta
 {
 	my $self = shift;
-	
+
 	my $datafile = $self->config_datafile || die "Either config_datafile or puzzle_meta is required";
 	my $meta;
 
 	open META_FH, "<:raw", $datafile;
-	while (my $line = <META_FH>)
-	{
+	while (my $line = <META_FH>) {
 		chomp $line;
 		my ($key, $value) = split(/:\s+/, $line, 2);
 		$key = lc($key);
 		$meta->{$key} = $value;
-	};
+	}
 	return $meta;
 }
 
-has data_dir     => (is => 'ro', isa => 'Str', lazy => 1, builder => '_build_data_dir');
+has data_dir => (is => 'ro', isa => 'Str', lazy => 1, builder => '_build_data_dir');
 
 sub _build_data_dir
 {
 	my $self = shift;
+
+	# This is hard coded and controled by Docker
 	return "/opt/app/data/";
-	my $datafile = $self->config_datafile || "../data/temp.dat";
-	
-	my $file = path($datafile);
-	my $dirname = $file->dirname('.dat');
-	
-	return $dirname;
 }
 
-has main_problem_datafile     => (is => 'ro', isa => 'Str', lazy => 1, builder => '_build_main_problem_datafile');
+has main_problem_datafile => (is => 'ro', isa => 'Str', lazy => 1, builder => '_build_main_problem_datafile');
 
 sub _build_main_problem_datafile
 {
 	my $self = shift;
-	my $puzzle_meta = $self->puzzle_meta;
+
+	my $puzzle_meta      = $self->puzzle_meta;
 	my $problem_datafile = $puzzle_meta->{formulas};
 	return $self->data_dir . $problem_datafile;
 }
@@ -76,6 +72,7 @@ has required_letters => (is => 'ro', isa => 'ArrayRef', lazy => 1, builder => '_
 sub _build_required_letters
 {
 	my $self = shift;
+
 	my $string = $self->phrase_answer;
 	my $letters;
 
@@ -96,51 +93,48 @@ has 'problems' => (
 	isa     => 'ArrayRef[HashRef]',
 	default => sub { [] },
 	handles => {
-		push_formatted_problem    => 'push',
-		count_problem             => 'count',
+		push_formatted_problem => 'push',
+		count_problem          => 'count',
 	},
 );
 
-has 'letter_key' => ( 
-    traits    => ['Hash'],
-	is => 'ro', 
-	isa => 'HashRef[Str]', 
-    handles   => {
-        set_letter    => 'set',
-    },
+has 'letter_key' => (
+	traits  => ['Hash'],
+	is      => 'ro',
+	isa     => 'HashRef[Str]',
+	handles => {
+		set_letter => 'set',
+	},
 );
 
 has answer_format => (is => 'ro', isa => 'ArrayRef', lazy => 1, builder => '_build_answer_format');
 
 sub _build_answer_format
 {
-	my $self = shift;
+	my $self          = shift;
 	my $phrase_answer = $self->phrase_answer;
-	my $letter_key = $self->letter_key;
+	my $letter_key    = $self->letter_key;
 	my $answer_format;
-	
+
 	# Split to determine size
 	my @all_letters = split(//, $phrase_answer);
-	
-	my $line = 0;
+
+	my $line      = 0;
 	my $line_size = 0;
-	foreach my $letter (@all_letters)
-	{   
+	foreach my $letter (@all_letters) {
 		$letter = uc($letter);
 		my $answer = $letter_key->{$letter};
 		$line_size++;
-		if ($letter eq ' ')
-		{   
+		if ($letter eq ' ') {
 			$line_size++;
-			if ($line_size > 16)
-			{   
+			if ($line_size > 16) {
 				$line++;
 				$line_size = 0;
 				next;
 			}
 			$answer = ' ';
 		}
-		push (@{$answer_format->[$line]}, $answer);
+		push(@{ $answer_format->[$line] }, $answer);
 	}
 	return $answer_format;
 }
@@ -156,60 +150,59 @@ sub _temp_file_name
 	my ($self, $suffix) = @_;
 	my $template = 'puzzle-numbers_XXXX';
 	my $temp_dir = '/tmp/';
-	my $file = File::Temp->new($template, SUFFIX => $suffix, DIR => $temp_dir, UNLINK => 1)->filename;
+	my $file     = File::Temp->new($template, SUFFIX => $suffix, DIR => $temp_dir, UNLINK => 1)->filename;
 	return $file;
 }
-
 
 sub generate
 {
 	my $self = shift;
 	my $required_letters = $self->required_letters || die "Cannot generate puzzle: Cannot determine required letters";
-	
+
 	my $possible_problems = $self->get_problems_from_file($self->main_problem_datafile);
-	my @answers = shuffle(keys %$possible_problems);
-	
+	my @answers           = shuffle(keys %$possible_problems);
+
 	my $count = scalar(@$required_letters);
 	my $letter_key;
 	my $i = 0;
-	while ($i < $count)
-	{   
+	while ($i < $count) {
 		my $answer = $answers[$i];
 		last unless $answer;
-		my $question = shuffle(@{$possible_problems->{$answer}});
-		
+		my $question = shuffle(@{ $possible_problems->{$answer} });
+
 		$self->push_problem({
-			answer => $answer,
-			question => $question,
-			letter => $required_letters->[$i],
-		});
-		
+				answer   => $answer,
+				question => $question,
+				letter   => $required_letters->[$i],
+			}
+		);
+
 		$self->set_letter($required_letters->[$i] => $answer);
 		$i++;
 	}
-	if ($i < $count)
-	{   
+	if ($i < $count) {
+
 		# We don't have enough questions
 		my $backup_datafile = $self->backup_problem_datafile;
 		die "We don't have enough questions" unless $backup_datafile;
-		
+
 		my $possible_problems = $self->get_problems_from_file($self->backup_problem_datafile);
-		foreach my $answer (keys %$possible_problems)
-		{
+		foreach my $answer (keys %$possible_problems) {
 			my $question = $possible_problems->{$answer}->[0];
-			
+
 			$self->push_problem({
-				answer => $answer,
-				question => $question,
-				letter => $required_letters->[$i],
-			});
-			
+					answer   => $answer,
+					question => $question,
+					letter   => $required_letters->[$i],
+				}
+			);
+
 			$self->set_letter($required_letters->[$i] => $answer);
 			$i++;
 			last unless $required_letters->[$i];
 		}
 	}
-	
+
 	my $template_vars = {
 		meta          => $self->puzzle_meta,
 		formulas      => $self->problems,
@@ -223,21 +216,18 @@ sub get_problems_from_file
 {
 	my ($self, $datafile) = @_;
 	my $possible_problems;
-	unless ($datafile =~ m%^/%)
-	{
+	unless ($datafile =~ m%^/%) {
 		$datafile = $self->data_dir . $datafile;
 	}
-	
+
 	my $rc = open FILE, "<:raw", $datafile;
-	unless ($rc)
-	{
+	unless ($rc) {
 		warn "Failed to open $datafile. $!\n";
 	}
-	while (my $line = <FILE>)
-	{   
+	while (my $line = <FILE>) {
 		chomp $line;
 		my ($key, $value) = split(/\s+/, $line, 2);
-		push (@{ $possible_problems->{$key}}, $value);
+		push(@{ $possible_problems->{$key} }, $value);
 	}
 	close(FILE);
 	return $possible_problems;
@@ -248,31 +238,34 @@ sub push_problem
 	my ($self, $args) = @_;
 	my $question = $args->{question};
 	my $part_count = scalar split(/ /, $question);
-	
+
 	# Put a & at the begining and end, and swap the spaces for '&'
 	(my $formatted_question = '&' . $question) =~ s/ /\&/g;
-	
+
 	if ($formatted_question =~ m/_/) {
+
 		# A '_' in the question should be substituted for an underscore to
 		# write the answer on. Then append a &
 		$formatted_question =~ s/_/\\underline{\\hspace{1cm}}/;
-		
+
 		# Add additional '&' to make 5 columns
 		while ($part_count < 5) {
 			$formatted_question .= '&';
 			$part_count++;
 		}
 	} else {
+
 		# Else, append a ' = ____' to supply space for the answer
 		$formatted_question .= '&=&\underline{\hspace{1.5cm}}';
 	}
-	
+
 	$self->push_formatted_problem({
-		answer => $args->{answer},
-		question => $args->{question},
-		formatted_question => $formatted_question,
-		letter => $args->{letter},
-	});
+			answer             => $args->{answer},
+			question           => $args->{question},
+			formatted_question => $formatted_question,
+			letter             => $args->{letter},
+		}
+	);
 }
 
 =head2 $self->get_dispatcher ($format)
@@ -286,12 +279,12 @@ sub get_dispatcher
 {
 	my ($self, $format) = @_;
 	my $base_dir = $self->data_dir . "../";
-	
+
 	my $dispatcher = {
 		tex => sub {
 			my ($filename) = @_;
 			my $fh;
-			open ($fh, '<', $filename) || die ("Could not open temporary file $filename for tex output");
+			open($fh, '<', $filename) || die("Could not open temporary file $filename for tex output");
 			while (my $line = <$fh>) {
 				print $line;
 			}

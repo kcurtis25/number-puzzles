@@ -1,1 +1,7 @@
 requires 'Dancer2';
+requires 'File::Slurp';
+requires 'JSON::XS';
+requires 'List::Util';
+requires 'Moose';
+requires 'Path::Tiny';
+requires 'Try::Tiny';
