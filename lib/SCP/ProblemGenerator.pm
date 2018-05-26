@@ -7,6 +7,7 @@ use Moose;
 
 has max_result   => (is => 'ro', isa => 'Int', default => 10);
 has min_result   => (is => 'ro', isa => 'Int', default => 0);
+has include_zero => (is => 'ro', isa => 'Int', default => 0);
 
 has 'possible_problems' => (
 	traits  => ['Array'],
@@ -38,6 +39,7 @@ sub generate
         	while ($x < $max_result)
         	{
                 	$x++;
+					next if ($result == $x && !$self->include_zero);
 					my $problem = $self->get_problem($result, $x);
 					next unless $problem;
 					$self->add_possible_problem({ result => $result, problem => $problem });

@@ -6,7 +6,14 @@
 			{ "datafile": "addition_to_10.dat" },
 			{ "datafile": "addition_to_20.dat" },
 			{ "datafile": "addition_to_30.dat" },
-			{ "datafile": "addition_to_99.dat" }
+			{ "datafile": "addition_to_40.dat" },
+			{ "datafile": "addition_to_50.dat" },
+			{ "datafile": "addition_to_60.dat" },
+			{ "datafile": "addition_to_70.dat" },
+			{ "datafile": "addition_to_80.dat" },
+			{ "datafile": "addition_to_90.dat" },
+			{ "datafile": "addition_to_99.dat" },
+			{ "datafile": "addition_to_110.dat" }
 		]
 	},
     # Addition Count on datafiles
