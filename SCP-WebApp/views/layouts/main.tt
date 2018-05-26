@@ -14,9 +14,33 @@
 
 </head>
 <body>
-<% content %>
-<div id="footer">
-Powered by <a href="http://perldancer.org/">Dancer2</a> <% dancer_version %>
+
+<div id="page">
+  <div id="sidebar">
+    <ul id="sidebar-items">
+      <li>
+        <h3>Puzzle Generator</h3>
+        <ul class="links">
+
+          <li><a href="/">Generate New Puzzle</a></li>
+          <li><a href="/abcd">Download existing puzzles</a> (not yet available)</li>
+        </ul>
+      </li>
+
+      <li>
+        <h3>Browse the documentation</h3>
+
+        <ul class="links">
+          <li><a href="/help">Help</a></li>
+        </ul>
+      </li>
+    </ul>
+
+  </div>
+  <% content %>
+  <div id="footer">
+    Powered by <a href="http://perldancer.org/">Dancer2</a> <% dancer_version %>
+  </div>
 </div>
 </body>
 </html>

@@ -1,0 +1,18 @@
+<div id="content">
+  <div id="header">
+    <h1>Help</h1>
+    <p>Use the instructions below to generate the pdf file</p>
+  </div>
+
+  <div id="help-text">
+    <ul>
+      <li><b>Title:</b> Can be anything. It will appear in the finished pdf as "Number Puzzle - &gt;Title&gt;"
+      <li><b>Category:</b> Can be anything. It will appear above the line. This is usually the type of math problem (eg Addition, Subtraction etc)
+      <li><b>Formula File:</b> The file which contains the math problems
+      <li><b>Author:</b> Your name (or nickname)
+      <li><b>Question:</b> Doesn't have to have a question mark. This is the bit that prompts for the answer
+      <li><b>Answer:</b> The bit the kids have to figure out. Should be all lower case with no punctuation except for spaces.
+    </ul>
+  </div>
+</div>
+
