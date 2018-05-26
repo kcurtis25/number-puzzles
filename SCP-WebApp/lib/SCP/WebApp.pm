@@ -85,4 +85,17 @@ post '/puzzle' => sub {
 	send_file($output_file, system_path => 1);
 };
 
+=head2 GET /help
+
+Show the user the 'help' page
+
+	GET /help
+
+=cut 
+
+get '/help' => sub {
+
+    return template 'help';
+};
+
 true;
