@@ -1,0 +1,36 @@
+{
+    # Addition datafiles
+    "addition": {
+		"description" : "Simple addition up to the number specified.",
+		"datafiles": [
+			{ "datafile": "addition_to_10.dat" },
+			{ "datafile": "addition_to_20.dat" },
+			{ "datafile": "addition_to_30.dat" },
+			{ "datafile": "addition_to_99.dat" }
+		]
+	},
+    # Addition Count on datafiles
+    "addition_count_on": {
+		"description" : "Addition where the second number is limited by the number specified",
+		"datafiles": [
+			{ "datafile": "addition_count_on_one.dat" },
+			{ "datafile": "addition_count_on_two.dat" },
+			{ "datafile": "addition_count_on_three.dat" },
+			{ "datafile": "addition_count_on_four.dat" }
+		]
+	},
+    # Doubles
+    "doubles": {
+		"description" : "Addition where both numbers are the same. The number specified is the highest sum. Because of the limited number of question options, this can include questions where the 'answer' is either of the numbers being added.",
+		"datafiles": [
+			{ "datafile": "doubles_to_20.dat" }
+		]
+	},
+    # Friends of ten
+    "friends_of_ten": {
+		"description" : "Addition which illustrates the 'Friends of Ten'. This can only be used for very short answers (max 11 chars)",
+		"datafiles": [
+			{ "datafile": "friends_of_ten.dat" }
+		]
+	}
+}

@@ -40,13 +40,19 @@ Prompt the user with the puzzle form. This form will be submitted to
 
 	POST /puzzle
 
-TODO: Generate lists of valid formula datafiles and provide select
-options rather than requiring the users to magically know
-
 =cut 
 
 get '/puzzle' => sub {
-    template 'puzzle-form';
+
+	require SCP::PuzzleDatafiles;
+	my $puzzle_datafiles = SCP::PuzzleDatafiles->new();
+	my $datafiles = $puzzle_datafiles->get_datafile_list();
+
+	my $template_vars = {
+		formula_datafiles => $datafiles,
+	};
+
+    return template 'puzzle-form', $template_vars;
 };
 
 =head2 POST /puzzle
