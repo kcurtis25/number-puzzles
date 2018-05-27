@@ -1,4 +1,4 @@
-package SCP::PuzzleGenerator;
+package SCP::PuzzlePageGenerator;
 
 use strict;
 use warnings;
@@ -7,30 +7,10 @@ use Moose;
 use Path::Tiny;
 use List::Util 'shuffle';
 
-use SCP::PuzzlePageGenerator;
-
-has config_datafile         => (is => 'ro', isa => 'Maybe[Str]');
 has backup_problem_datafile => (is => 'ro', isa => 'Str', default => 'addition_to_10-bkp.dat');
 has main_problem_datafile   => (is => 'ro', isa => 'Str', lazy => 1, builder => '_build_main_problem_datafile');
 
-has puzzle_meta => (is => 'ro', isa => 'HashRef', lazy => 1, builder => '_build_puzzle_meta');
-
-sub _build_puzzle_meta
-{
-	my $self = shift;
-
-	my $datafile = $self->config_datafile || die "Either config_datafile or puzzle_meta is required";
-	my $meta;
-
-	open META_FH, "<:raw", $datafile;
-	while (my $line = <META_FH>) {
-		chomp $line;
-		my ($key, $value) = split(/:\s+/, $line, 2);
-		$key = lc($key);
-		$meta->{$key} = $value;
-	}
-	return $meta;
-}
+has puzzle_meta => (is => 'ro', isa => 'HashRef', required => 1);
 
 has data_dir => (is => 'ro', isa => 'Str', lazy => 1, builder => '_build_data_dir');
 
@@ -156,53 +136,98 @@ sub _temp_file_name
 	return $file;
 }
 
-sub generate
+sub generate_page
 {
 	my $self = shift;
+	my ($args) = @_;
+
+	my $possible_problems = $args->{possible_problems};
+	my $backup_possible_problems = $args->{backup_possible_problems};
+
 	my $required_letters = $self->required_letters || die "Cannot generate puzzle: Cannot determine required letters";
 
-	my $meta = $self->puzzle_meta;
-	my $possible_problems = $self->get_problems_from_file($self->main_problem_datafile);
-	my $backup_possible_problems = $self->get_problems_from_file($self->backup_problem_datafile);
+	my @answers           = shuffle(keys %$possible_problems);
 
-	my $page_args = {
-		possible_problems => $possible_problems,
-		backup_possible_problems => $backup_possible_problems,
-	};
+	my $count = scalar(@$required_letters);
+	my $letter_key;
+	my $i = 0;
+	while ($i < $count) {
+		my $answer = $answers[$i];
+		last unless $answer;
+		my $question = shuffle(@{ $possible_problems->{$answer} });
 
-	my @pages;
-	for (my $i = 0; $i < 2; $i++) {
-		my $page_generator = SCP::PuzzlePageGenerator->new(puzzle_meta => $meta);
-		my $page_data = $page_generator->generate_page($page_args);
-		push (@pages, $page_data);
+		$self->push_problem({
+				answer   => $answer,
+				question => $question,
+				letter   => $required_letters->[$i],
+			}
+		);
+
+		$self->set_letter($required_letters->[$i] => $answer);
+		$i++;
+	}
+	if ($i < $count) {
+
+		# We don't have enough questions
+		die "We don't have enough questions" unless $backup_possible_problems;
+
+		foreach my $answer (keys %$backup_possible_problems) {
+			my $question = $backup_possible_problems->{$answer}->[0];
+
+			$self->push_problem({
+					answer   => $answer,
+					question => $question,
+					letter   => $required_letters->[$i],
+				}
+			);
+
+			$self->set_letter($required_letters->[$i] => $answer);
+			$i++;
+			last unless $required_letters->[$i];
+		}
 	}
 
-	my $template_vars = {
-		meta  => $meta,
-		pages => \@pages,
+	my $page_data = {
+		formulas      => $self->problems,
+		letters       => $self->required_letters,
+		answer_format => $self->answer_format,
 	};
-	return $template_vars;
+	return $page_data;
 }
 
-sub get_problems_from_file
+sub push_problem
 {
-	my ($self, $datafile) = @_;
-	my $possible_problems;
-	unless ($datafile =~ m%^/%) {
-		$datafile = $self->data_dir . $datafile;
+	my ($self, $args) = @_;
+	my $question = $args->{question};
+	my $part_count = scalar split(/ /, $question);
+
+	# Put a & at the begining and end, and swap the spaces for '&'
+	(my $formatted_question = '&' . $question) =~ s/ /\&/g;
+
+	if ($formatted_question =~ m/_/) {
+
+		# A '_' in the question should be substituted for an underscore to
+		# write the answer on. Then append a &
+		$formatted_question =~ s/_/\\underline{\\hspace{1cm}}/;
+
+		# Add additional '&' to make 5 columns
+		while ($part_count < 5) {
+			$formatted_question .= '&';
+			$part_count++;
+		}
+	} else {
+
+		# Else, append a ' = ____' to supply space for the answer
+		$formatted_question .= '&=&\underline{\hspace{1.5cm}}';
 	}
 
-	my $rc = open FILE, "<:raw", $datafile;
-	unless ($rc) {
-		warn "Failed to open $datafile. $!\n";
-	}
-	while (my $line = <FILE>) {
-		chomp $line;
-		my ($key, $value) = split(/\s+/, $line, 2);
-		push(@{ $possible_problems->{$key} }, $value);
-	}
-	close(FILE);
-	return $possible_problems;
+	$self->push_formatted_problem({
+			answer             => $args->{answer},
+			question           => $args->{question},
+			formatted_question => $formatted_question,
+			letter             => $args->{letter},
+		}
+	);
 }
 
 =head2 $self->get_dispatcher ($format)
