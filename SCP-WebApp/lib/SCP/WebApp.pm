@@ -65,7 +65,7 @@ TODO: Save the pdf file and make it available for download
 
 post '/puzzle' => sub {
 	my $puzzle_generator_config;
-	foreach my $param (qw(title category formulas question answer author)) {
+	foreach my $param (qw(title category formulas question answer author number_of_pages)) {
 		$puzzle_generator_config->{$param} = body_parameters->get($param);
 	}
 	

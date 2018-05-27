@@ -111,7 +111,9 @@ sub generate
 	};
 
 	my @pages;
-	for (my $i = 0; $i < 5; $i++) {
+	my $number_of_pages = $meta->{number_of_pages} || 1;
+	$number_of_pages = 50 if $number_of_pages > 50;
+	for (my $i = 0; $i < $number_of_pages; $i++) {
 		my $page_generator = SCP::PuzzlePageGenerator->new(puzzle_meta => $meta, required_letters => $required_letters);
 		my $page_data = $page_generator->generate_page($page_args);
 		push (@pages, $page_data);
