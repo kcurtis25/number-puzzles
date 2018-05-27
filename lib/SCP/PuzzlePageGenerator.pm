@@ -7,39 +7,15 @@ use Moose;
 use Path::Tiny;
 use List::Util 'shuffle';
 
-has backup_problem_datafile => (is => 'ro', isa => 'Str', default => 'addition_to_10-bkp.dat');
-has main_problem_datafile   => (is => 'ro', isa => 'Str', lazy => 1, builder => '_build_main_problem_datafile');
+=head1 ATTRIBUTES
+
+=head2 puzzle_meta
+
+This is passed in by SCP::PuzzleGenerator
+
+=cut
 
 has puzzle_meta => (is => 'ro', isa => 'HashRef', required => 1);
-
-has data_dir => (is => 'ro', isa => 'Str', lazy => 1, builder => '_build_data_dir');
-
-sub _build_data_dir
-{
-	my $self = shift;
-
-	# This is hard coded and controled by Docker
-	return "/opt/app/data/";
-}
-
-has main_problem_datafile => (is => 'ro', isa => 'Str', lazy => 1, builder => '_build_main_problem_datafile');
-
-sub _build_main_problem_datafile
-{
-	my $self = shift;
-
-	my $puzzle_meta      = $self->puzzle_meta;
-	my $problem_datafile = $puzzle_meta->{formulas};
-	return $self->data_dir . $problem_datafile;
-}
-
-has phrase_clue => (is => 'ro', isa => 'Str', lazy => 1, builder => '_build_phrase_clue');
-
-sub _build_phrase_clue
-{
-	my $self = shift;
-	return $self->puzzle_meta->{question};
-}
 
 has phrase_answer => (is => 'ro', isa => 'Str', lazy => 1, builder => '_build_phrase_answer');
 
@@ -49,25 +25,7 @@ sub _build_phrase_answer
 	return $self->puzzle_meta->{answer};
 }
 
-has required_letters => (is => 'ro', isa => 'ArrayRef', lazy => 1, builder => '_build_required_letters');
-
-sub _build_required_letters
-{
-	my $self = shift;
-
-	my $string = $self->phrase_answer;
-	my $letters;
-
-	# Remove whitespace and upper case
-	$string =~ s/\s+//g;
-	$string = uc($string);
-
-	# Split, and store as hash
-	my @all_letters = split(//, $string);
-	$letters->{$_} = 1 foreach @all_letters;
-	my @uniq_letters = sort keys %$letters;
-	return \@uniq_letters;
-}
+has required_letters => (is => 'ro', isa => 'ArrayRef', required => 1);
 
 has 'problems' => (
 	traits  => ['Array'],
@@ -119,21 +77,6 @@ sub _build_answer_format
 		push(@{ $answer_format->[$line] }, $answer);
 	}
 	return $answer_format;
-}
-
-=head2 $self->_temp_file_name ($suffix)
-
-Provide a temporary filename (eg /tmp/puzzle-numbers_2RjB.tex)
-
-=cut
-
-sub _temp_file_name
-{
-	my ($self, $suffix) = @_;
-	my $template = 'puzzle-numbers_XXXX';
-	my $temp_dir = '/tmp/';
-	my $file     = File::Temp->new($template, SUFFIX => $suffix, DIR => $temp_dir, UNLINK => 1)->filename;
-	return $file;
 }
 
 sub generate_page
@@ -228,35 +171,6 @@ sub push_problem
 			letter             => $args->{letter},
 		}
 	);
-}
-
-=head2 $self->get_dispatcher ($format)
-
-Return function sub based on the given format. This function will take a
-$filename of the generated tex file.
-
-=cut
-
-sub get_dispatcher
-{
-	my ($self, $format) = @_;
-	my $base_dir = $self->data_dir . "../";
-
-	my $dispatcher = {
-		tex => sub {
-			my ($filename) = @_;
-			my $fh;
-			open($fh, '<', $filename) || die("Could not open temporary file $filename for tex output");
-			while (my $line = <$fh>) {
-				print $line;
-			}
-		},
-		pdf => sub {
-			my ($filename) = @_;
-			system("pdflatex -interaction=nonstopmode -output-directory=/tmp $filename");
-		},
-	};
-	return $dispatcher->{$format};
 }
 
 1;

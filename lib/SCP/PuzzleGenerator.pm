@@ -53,14 +53,6 @@ sub _build_main_problem_datafile
 	return $self->data_dir . $problem_datafile;
 }
 
-has phrase_clue => (is => 'ro', isa => 'Str', lazy => 1, builder => '_build_phrase_clue');
-
-sub _build_phrase_clue
-{
-	my $self = shift;
-	return $self->puzzle_meta->{question};
-}
-
 has phrase_answer => (is => 'ro', isa => 'Str', lazy => 1, builder => '_build_phrase_answer');
 
 sub _build_phrase_answer
@@ -87,58 +79,6 @@ sub _build_required_letters
 	$letters->{$_} = 1 foreach @all_letters;
 	my @uniq_letters = sort keys %$letters;
 	return \@uniq_letters;
-}
-
-has 'problems' => (
-	traits  => ['Array'],
-	is      => 'ro',
-	isa     => 'ArrayRef[HashRef]',
-	default => sub { [] },
-	handles => {
-		push_formatted_problem => 'push',
-		count_problem          => 'count',
-	},
-);
-
-has 'letter_key' => (
-	traits  => ['Hash'],
-	is      => 'ro',
-	isa     => 'HashRef[Str]',
-	handles => {
-		set_letter => 'set',
-	},
-);
-
-has answer_format => (is => 'ro', isa => 'ArrayRef', lazy => 1, builder => '_build_answer_format');
-
-sub _build_answer_format
-{
-	my $self          = shift;
-	my $phrase_answer = $self->phrase_answer;
-	my $letter_key    = $self->letter_key;
-	my $answer_format;
-
-	# Split to determine size
-	my @all_letters = split(//, $phrase_answer);
-
-	my $line      = 0;
-	my $line_size = 0;
-	foreach my $letter (@all_letters) {
-		$letter = uc($letter);
-		my $answer = $letter_key->{$letter};
-		$line_size++;
-		if ($letter eq ' ') {
-			$line_size++;
-			if ($line_size > 16) {
-				$line++;
-				$line_size = 0;
-				next;
-			}
-			$answer = ' ';
-		}
-		push(@{ $answer_format->[$line] }, $answer);
-	}
-	return $answer_format;
 }
 
 =head2 $self->_temp_file_name ($suffix)
@@ -171,8 +111,8 @@ sub generate
 	};
 
 	my @pages;
-	for (my $i = 0; $i < 2; $i++) {
-		my $page_generator = SCP::PuzzlePageGenerator->new(puzzle_meta => $meta);
+	for (my $i = 0; $i < 5; $i++) {
+		my $page_generator = SCP::PuzzlePageGenerator->new(puzzle_meta => $meta, required_letters => $required_letters);
 		my $page_data = $page_generator->generate_page($page_args);
 		push (@pages, $page_data);
 	}

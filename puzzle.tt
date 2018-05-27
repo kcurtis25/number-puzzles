@@ -39,8 +39,8 @@
   [% FOREACH letter IN line %][% IF letter == ' ' %]&[% ELSE %]\underline{\hspace{1em}}&[% END %][% END %]
   [% FOREACH letter IN line %][% letter %]&[% END %]
 \end{tabular}
+\clearpage
 [% END %]
 \\
 [% END %]
-
 \end{document}
