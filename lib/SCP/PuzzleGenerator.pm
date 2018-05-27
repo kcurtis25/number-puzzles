@@ -7,6 +7,8 @@ use Moose;
 use Path::Tiny;
 use List::Util 'shuffle';
 
+use SCP::PuzzlePageGenerator;
+
 has config_datafile         => (is => 'ro', isa => 'Maybe[Str]');
 has backup_problem_datafile => (is => 'ro', isa => 'Str', default => 'addition_to_10-bkp.dat');
 has main_problem_datafile   => (is => 'ro', isa => 'Str', lazy => 1, builder => '_build_main_problem_datafile');
@@ -51,14 +53,6 @@ sub _build_main_problem_datafile
 	return $self->data_dir . $problem_datafile;
 }
 
-has phrase_clue => (is => 'ro', isa => 'Str', lazy => 1, builder => '_build_phrase_clue');
-
-sub _build_phrase_clue
-{
-	my $self = shift;
-	return $self->puzzle_meta->{question};
-}
-
 has phrase_answer => (is => 'ro', isa => 'Str', lazy => 1, builder => '_build_phrase_answer');
 
 sub _build_phrase_answer
@@ -87,58 +81,6 @@ sub _build_required_letters
 	return \@uniq_letters;
 }
 
-has 'problems' => (
-	traits  => ['Array'],
-	is      => 'ro',
-	isa     => 'ArrayRef[HashRef]',
-	default => sub { [] },
-	handles => {
-		push_formatted_problem => 'push',
-		count_problem          => 'count',
-	},
-);
-
-has 'letter_key' => (
-	traits  => ['Hash'],
-	is      => 'ro',
-	isa     => 'HashRef[Str]',
-	handles => {
-		set_letter => 'set',
-	},
-);
-
-has answer_format => (is => 'ro', isa => 'ArrayRef', lazy => 1, builder => '_build_answer_format');
-
-sub _build_answer_format
-{
-	my $self          = shift;
-	my $phrase_answer = $self->phrase_answer;
-	my $letter_key    = $self->letter_key;
-	my $answer_format;
-
-	# Split to determine size
-	my @all_letters = split(//, $phrase_answer);
-
-	my $line      = 0;
-	my $line_size = 0;
-	foreach my $letter (@all_letters) {
-		$letter = uc($letter);
-		my $answer = $letter_key->{$letter};
-		$line_size++;
-		if ($letter eq ' ') {
-			$line_size++;
-			if ($line_size > 16) {
-				$line++;
-				$line_size = 0;
-				next;
-			}
-			$answer = ' ';
-		}
-		push(@{ $answer_format->[$line] }, $answer);
-	}
-	return $answer_format;
-}
-
 =head2 $self->_temp_file_name ($suffix)
 
 Provide a temporary filename (eg /tmp/puzzle-numbers_2RjB.tex)
@@ -159,55 +101,27 @@ sub generate
 	my $self = shift;
 	my $required_letters = $self->required_letters || die "Cannot generate puzzle: Cannot determine required letters";
 
+	my $meta = $self->puzzle_meta;
 	my $possible_problems = $self->get_problems_from_file($self->main_problem_datafile);
-	my @answers           = shuffle(keys %$possible_problems);
+	my $backup_possible_problems = $self->get_problems_from_file($self->backup_problem_datafile);
 
-	my $count = scalar(@$required_letters);
-	my $letter_key;
-	my $i = 0;
-	while ($i < $count) {
-		my $answer = $answers[$i];
-		last unless $answer;
-		my $question = shuffle(@{ $possible_problems->{$answer} });
+	my $page_args = {
+		possible_problems => $possible_problems,
+		backup_possible_problems => $backup_possible_problems,
+	};
 
-		$self->push_problem({
-				answer   => $answer,
-				question => $question,
-				letter   => $required_letters->[$i],
-			}
-		);
-
-		$self->set_letter($required_letters->[$i] => $answer);
-		$i++;
-	}
-	if ($i < $count) {
-
-		# We don't have enough questions
-		my $backup_datafile = $self->backup_problem_datafile;
-		die "We don't have enough questions" unless $backup_datafile;
-
-		my $possible_problems = $self->get_problems_from_file($self->backup_problem_datafile);
-		foreach my $answer (keys %$possible_problems) {
-			my $question = $possible_problems->{$answer}->[0];
-
-			$self->push_problem({
-					answer   => $answer,
-					question => $question,
-					letter   => $required_letters->[$i],
-				}
-			);
-
-			$self->set_letter($required_letters->[$i] => $answer);
-			$i++;
-			last unless $required_letters->[$i];
-		}
+	my @pages;
+	my $number_of_pages = $meta->{number_of_pages} || 1;
+	$number_of_pages = 50 if $number_of_pages > 50;
+	for (my $i = 0; $i < $number_of_pages; $i++) {
+		my $page_generator = SCP::PuzzlePageGenerator->new(puzzle_meta => $meta, required_letters => $required_letters);
+		my $page_data = $page_generator->generate_page($page_args);
+		push (@pages, $page_data);
 	}
 
 	my $template_vars = {
-		meta          => $self->puzzle_meta,
-		formulas      => $self->problems,
-		letters       => $self->required_letters,
-		answer_format => $self->answer_format,
+		meta  => $meta,
+		pages => \@pages,
 	};
 	return $template_vars;
 }
@@ -231,41 +145,6 @@ sub get_problems_from_file
 	}
 	close(FILE);
 	return $possible_problems;
-}
-
-sub push_problem
-{
-	my ($self, $args) = @_;
-	my $question = $args->{question};
-	my $part_count = scalar split(/ /, $question);
-
-	# Put a & at the begining and end, and swap the spaces for '&'
-	(my $formatted_question = '&' . $question) =~ s/ /\&/g;
-
-	if ($formatted_question =~ m/_/) {
-
-		# A '_' in the question should be substituted for an underscore to
-		# write the answer on. Then append a &
-		$formatted_question =~ s/_/\\underline{\\hspace{1cm}}/;
-
-		# Add additional '&' to make 5 columns
-		while ($part_count < 5) {
-			$formatted_question .= '&';
-			$part_count++;
-		}
-	} else {
-
-		# Else, append a ' = ____' to supply space for the answer
-		$formatted_question .= '&=&\underline{\hspace{1.5cm}}';
-	}
-
-	$self->push_formatted_problem({
-			answer             => $args->{answer},
-			question           => $args->{question},
-			formatted_question => $formatted_question,
-			letter             => $args->{letter},
-		}
-	);
 }
 
 =head2 $self->get_dispatcher ($format)

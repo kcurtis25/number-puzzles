@@ -20,6 +20,7 @@
         <tr><td>Author:</td><td><input id="author" name="author" type="text" /></tr>
         <tr><td>Question:</td><td><input id="question" name="question" type="text" /></tr>
         <tr><td>Answer:</td><td><input id="answer" name="answer" type="text" /></tr>
+        <tr><td>Pages:</td><td><input id="number_of_pages" name="number_of_pages" type="text" value="1"/></tr>
         <tr colspan="2"><td><input type="submit" /></td></tr>
       </table>
     <form>
