@@ -108,7 +108,6 @@ sub generate
 	my $page_args = {
 		possible_problems => $possible_problems,
 		backup_possible_problems => $backup_possible_problems,
-		font_size => $meta->{font_size},
 	};
 
 	my @pages;

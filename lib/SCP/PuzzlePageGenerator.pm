@@ -47,6 +47,21 @@ has 'letter_key' => (
 	},
 );
 
+has max_letters_on_answer_line => (is => 'ro', isa => 'Int', lazy => 1, builder => '_build_max_letters_on_answer_line');
+
+sub _build_max_letters_on_answer_line
+{
+	my $self = shift;
+
+	my $font_size = $self->{puzzle_meta}->{font_size} || '';
+
+	my $max_letters_lookup = {
+		'20pt' => 14,
+		'14pt' => 20,
+	};
+	return $max_letters_lookup->{$font_size} || 16;
+}
+
 has answer_format => (is => 'ro', isa => 'ArrayRef', lazy => 1, builder => '_build_answer_format');
 
 sub _build_answer_format
@@ -59,6 +74,8 @@ sub _build_answer_format
 	# Split to determine size
 	my @all_letters = split(//, $phrase_answer);
 
+	my $max_letters_per_line = $self->max_letters_on_answer_line;
+
 	my $line      = 0;
 	my $line_size = 0;
 	foreach my $letter (@all_letters) {
@@ -67,7 +84,7 @@ sub _build_answer_format
 		$line_size++;
 		if ($letter eq ' ') {
 			$line_size++;
-			if ($line_size > 16) {
+			if ($line_size > $max_letters_per_line) {
 				$line++;
 				$line_size = 0;
 				next;
@@ -86,7 +103,6 @@ sub generate_page
 
 	my $possible_problems = $args->{possible_problems};
 	my $backup_possible_problems = $args->{backup_possible_problems};
-	my $font_size = $args->{font_size}; #Unused. May be used to allow more letters per line
 
 	my $required_letters = $self->required_letters || die "Cannot generate puzzle: Cannot determine required letters";
 
