@@ -65,10 +65,10 @@ TODO: Save the pdf file and make it available for download
 
 post '/puzzle' => sub {
 	my $puzzle_generator_config;
-	foreach my $param (qw(title category formulas question answer author number_of_pages)) {
+	foreach my $param (qw(title category formulas question answer author number_of_pages font_size)) {
 		$puzzle_generator_config->{$param} = body_parameters->get($param);
 	}
-	
+
 	my $puzzle = SCP::PuzzleGenerator->new(puzzle_meta => $puzzle_generator_config);
 	my $template_vars = $puzzle->generate();
 

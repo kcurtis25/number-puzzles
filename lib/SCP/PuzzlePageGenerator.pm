@@ -86,6 +86,7 @@ sub generate_page
 
 	my $possible_problems = $args->{possible_problems};
 	my $backup_possible_problems = $args->{backup_possible_problems};
+	my $font_size = $args->{font_size}; #Unused. May be used to allow more letters per line
 
 	my $required_letters = $self->required_letters || die "Cannot generate puzzle: Cannot determine required letters";
 
