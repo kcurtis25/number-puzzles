@@ -21,6 +21,12 @@
         <tr><td>Question:</td><td><input id="question" name="question" type="text" /></tr>
         <tr><td>Answer:</td><td><input id="answer" name="answer" type="text" /></tr>
         <tr><td>Pages:</td><td><input id="number_of_pages" name="number_of_pages" type="text" value="1"/></tr>
+        <tr><td>Font Size:</td><td>
+          <select id="font_size" name="font_size">
+            <option value="20pt">Large</option>
+            <option value="14pt">Small</option>
+          </select>
+        </td></tr>
         <tr colspan="2"><td><input type="submit" /></td></tr>
       </table>
     <form>
