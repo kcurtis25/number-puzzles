@@ -113,7 +113,7 @@ sub generate_page
 	my $i = 0;
 	while ($i < $count) {
 		my $answer = $answers[$i];
-		last unless $answer;
+		last unless defined $answer;
 		my $question = shuffle(@{ $possible_problems->{$answer} });
 
 		$self->push_problem({
