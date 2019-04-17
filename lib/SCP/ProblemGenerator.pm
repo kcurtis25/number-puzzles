@@ -5,9 +5,12 @@ use warnings;
 
 use Moose;
 
-has max_result   => (is => 'ro', isa => 'Int', default => 10);
-has min_result   => (is => 'ro', isa => 'Int', default => 0);
 has include_zero => (is => 'ro', isa => 'Int', default => 0);
+
+has generator_args => (is => 'ro', isa => 'HashRef');
+
+has type => (required => 1, is => 'ro', isa => 'Str');
+has type_based_generator => (is => 'ro', lazy => 1, builder => '_build_type_based_generator');
 
 has 'possible_problems' => (
 	traits  => ['Array'],
@@ -20,6 +23,31 @@ has 'possible_problems' => (
 	},
 );
 
+=head2 $self->_build_type_based_generator
+
+=cut
+
+sub _build_type_based_generator
+{
+	my $self = shift;
+
+	my $type = $self->type;
+	my $generator_args = $self->generator_args;
+
+	my $type_based_generator;
+	if ($type eq 'Addition') {
+		require SCP::ProblemGenerator::Addition;
+		$type_based_generator = SCP::ProblemGenerator::Addition->new($generator_args);
+	} elsif ($type eq 'TimesTables') {
+		require SCP::ProblemGenerator::TimesTables;
+		$type_based_generator = SCP::ProblemGenerator::TimesTables->new($generator_args);
+	} else {
+		die "Type $type is not supported)\n";
+	}
+
+	return $type_based_generator;
+}
+
 =head2 generate
 
 Add problems to the 'possible_problems' array
@@ -30,8 +58,10 @@ sub generate
 {
 	my $self = shift;
 
-	my $max_result = $self->max_result;
-	my $result = $self->min_result;
+	my $type_based_generator = $self->type_based_generator;
+
+	my $max_result = $type_based_generator->max_result;
+	my $result = $type_based_generator->min_result;
 	
 	while ($result <= $max_result)
 	{
@@ -40,43 +70,12 @@ sub generate
         	{
                 	$x++;
 					next if ($result == $x && !$self->include_zero);
-					my $problem = $self->get_problem($result, $x);
+					my $problem = $type_based_generator->get_problem($result, $x);
 					next unless $problem;
 					$self->add_possible_problem({ result => $result, problem => $problem });
         	}
-        	$result = $self->next_result($result);
+        	$result = $type_based_generator->next_result($result);
 	}
-}
-
-=head2 $self->next_result ($current_result)
-
-Given a result (answer to an equation), return the next possible result
-
-=cut
-
-sub next_result
-{
-	my $self = shift;
-	my ($current_result) = @_;
-	
-	return ++$current_result;
-}
-
-=head2 $self->get_problem ($result, $x)
-
-=cut
-
-sub get_problem
-{
-	my $self = shift;
-	my ($result, $x) = @_;
-	
-	my $y = $result - $x;
-	if ($self->min_result >= 0)
-	{
-		return undef unless $x > -1 && $y > -1;
-	}
-	return "$x + $y";
 }
 
 sub print

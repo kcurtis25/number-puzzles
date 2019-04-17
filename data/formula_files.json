@@ -39,5 +39,19 @@
 		"datafiles": [
 			{ "datafile": "friends_of_ten.dat" }
 		]
+	},
+    # Multiplication
+    "multiplication": {
+		"description" : "",
+		"datafiles": [
+			{ "datafile": "multiplication_0_1_2_10.dat" },
+			{ "datafile": "multiplication_1_2_3_9_10.dat" },
+			{ "datafile": "multiplication_1_2_5_10.dat" },
+			{ "datafile": "multiplication_1_2_5_6_10.dat" },
+			{ "datafile": "multiplication_1_2_5_7_8.dat" },
+			{ "datafile": "multiplication_1_to_10.dat" },
+			{ "datafile": "multiplication_1_to_12.dat" },
+			{ "datafile": "multiplication_2_3_4_5.dat" }
+		]
 	}
 }
